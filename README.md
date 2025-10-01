@@ -16,45 +16,44 @@ CRUD completo em **Moto** com **PostgreSQL** na Azure e deploy **PaaS** no **Azu
 
 ## 3) Arquitetura
 
-```mermaid
 flowchart LR
-  User[Usuário Web] -->|HTTPS| App[Azure App Service (Java 17)]
-  App -->|JDBC + Flyway| PG[(Azure PostgreSQL Flexible Server)]
+  User["Usuário Web"] -->|HTTPS| App["Azure App Service<br/>(Java 17)"];
+  App -->|JDBC + Flyway| PG[(Azure PostgreSQL Flexible Server)];
   subgraph Azure
     App
     PG
   end
-  ```
-4) Pré-requisitos
-Java 17 + Maven 3.9+
 
-Azure CLI autenticado: az login
 
-Uma subscription selecionada: az account set --subscription "<id-ou-nome>"
+## 4) Pré-requisitos
+* Java 17 + Maven 3.9+
 
-5) Configuração local e build
-bash
-Copiar código
+* Azure CLI autenticado: az login
+
+* Uma subscription selecionada: az account set --subscription "<id-ou-nome>"
+
+## 5) Configuração local e build
+
+```bash
 # compila e gera jar com Boot Loader
 mvn -DskipTests clean package spring-boot:repackage
 
 # (opcional) rodar local
 java -jar target/mottu-track-api-0.0.1-SNAPSHOT.jar
 Verifique o MANIFEST:
-
-bash
-Copiar código
+```
+```bash
 unzip -p target/mottu-track-api-0.0.1-SNAPSHOT.jar META-INF/MANIFEST.MF | grep -E "Main-Class|Start-Class"
+````
 # Deve ter:
 # Main-Class: org.springframework.boot.loader.launch.JarLauncher
 # Start-Class: br.com.fiap.mottuapp.MottuAppApplication
-6) Provisionamento na Azure (CLI)
-Opção App Service (requisito da disciplina).
+## 6) Provisionamento na Azure (CLI)
+* Opção App Service (requisito da disciplina).
 
-Defina variáveis (ajuste se quiser):
+* Defina variáveis (ajuste se quiser):
 
-bash
-Copiar código
+````bash
 RG="rg-challenge3-devops-558438"
 LOC="eastus"
 PLAN="plan-challenge3-devops-558438"
@@ -65,9 +64,8 @@ PG_ADMIN="pgadmin558438"
 PG_PASS="OutraSenha!F0rte_992"
 PG_DB="db_challenge3_devops"
 Crie recursos (pule este bloco se você já criou com os mesmos nomes):
-
-bash
-Copiar código
+````
+````bash
 az group create -n $RG -l $LOC
 az appservice plan create -g $RG -n $PLAN --sku B1 --is-linux
 az webapp create -g $RG -p $PLAN -n $APP --runtime "JAVA|17-java17"
@@ -83,8 +81,8 @@ az postgres flexible-server create \
 PG_HOST=$(az postgres flexible-server show -g $RG -n $PG --query fullyQualifiedDomainName -o tsv)
 az postgres flexible-server db create -g $RG -s $PG -d $PG_DB
 App Settings (necessário mesmo que os recursos já existam):
-
-bash
+````
+````bash
 Copiar código
 PG_HOST=$(az postgres flexible-server show -g $RG -n $PG --query fullyQualifiedDomainName -o tsv)
 SPRING_URL="jdbc:postgresql://$PG_HOST:5432/$PG_DB?sslmode=require"
@@ -95,8 +93,10 @@ az webapp config appsettings set -g $RG -n $APP --settings \
   SPRING_DATASOURCE_PASSWORD="$PG_PASS" \
   JAVA_TOOL_OPTIONS="-Dserver.port=8080" \
   WEBSITES_PORT=8080
-7) Deploy do JAR
-bash
+````
+
+## 7) Deploy do JAR
+````bash
 Copiar código
 # garante jar correto
 mvn -DskipTests clean package spring-boot:repackage
@@ -110,12 +110,13 @@ az webapp deploy -g $RG -n $APP --type jar --src-path "$JAR"
 az webapp restart -g $RG -n $APP
 az webapp log config -g $RG -n $APP --application-logging filesystem --level information
 az webapp log tail   -g $RG -n $APP
-Acesse: https://$APP.azurewebsites.net/
+````
+* Acesse: https://$APP.azurewebsites.net/
 
-8) Testes (CRUD Moto)
+## 8) Testes (CRUD Moto)
 Exemplos (ajuste rota se necessário):
 
-bash
+```bash
 Copiar código
 BASE="https://$APP.azurewebsites.net"
 
@@ -142,10 +143,11 @@ curl -s "$BASE/motos/1"
 
 # Deletar (id=2)
 curl -s -X DELETE "$BASE/motos/2"
-9) DDL exigido (script_bd.sql)
+````
+## 9) DDL exigido (script_bd.sql)
 Crie na raiz do repositório um arquivo script_bd.sql com a DDL abaixo (usada pelo Flyway):
 
-sql
+````sql
 Copiar código
 CREATE TABLE IF NOT EXISTS filial (
   id BIGSERIAL PRIMARY KEY,
@@ -188,13 +190,14 @@ CREATE TABLE IF NOT EXISTS locacao (
   devolucao_real TIMESTAMPTZ,
   valor_total NUMERIC(10,2)
 );
-10) Troubleshooting rápido
-no main manifest attribute: refaça o build com mvn ... spring-boot:repackage e redeploy.
+````
+## 10) Troubleshooting rápido
+** no main manifest attribute: refaça o build com mvn ... spring-boot:repackage e redeploy.
 
-App travado em “Starting the site…”: confirme:
+** App travado em “Starting the site…”: confirme:
 
-runtime JAVA|17-java17: az webapp config show -g $RG -n $APP --query linuxFxVersion
+* runtime JAVA|17-java17: az webapp config show -g $RG -n $APP --query linuxFxVersion
 
-App Settings: WEBSITES_PORT=8080 e JAVA_TOOL_OPTIONS=-Dserver.port=8080
+** App Settings: WEBSITES_PORT=8080 e JAVA_TOOL_OPTIONS=-Dserver.port=8080
 
-SPRING_DATASOURCE_* corretos (sem null).
+** SPRING_DATASOURCE_* corretos (sem null).
