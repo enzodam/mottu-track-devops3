@@ -1,0 +1,16 @@
+CREATE TABLE locacao (
+    id BIGSERIAL PRIMARY KEY,
+    usuario_id BIGINT NOT NULL,
+    moto_id BIGINT NOT NULL,
+    inicio TIMESTAMP,
+    fim_previsto TIMESTAMP,
+    fim_efetivo TIMESTAMP,
+    status VARCHAR(20) NOT NULL,
+    valor_total NUMERIC(12,2),
+
+    CONSTRAINT fk_locacao_usuario FOREIGN KEY (usuario_id) REFERENCES usuario(id),
+    CONSTRAINT fk_locacao_moto FOREIGN KEY (moto_id) REFERENCES moto(id)
+);
+
+CREATE INDEX idx_locacao_status ON locacao(status);
+CREATE INDEX idx_locacao_moto ON locacao(moto_id);

@@ -1,0 +1,19 @@
+<!-- fragments/_header.html -->
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header class="app-header" th:fragment="header">
+  <div class="app-header__inner">
+    <a href="/" class="brand" aria-label="Mottu Track">
+      <!-- classe específica pro logo do HEADER -->
+      <img class="logo--header" th:src="@{/images/logo.png}" alt="Mottu Track">
+    </a>
+
+    <!-- nav/ações (se necessário) -->
+    <nav class="app-header__nav">
+      <!-- links opcionais -->
+    </nav>
+  </div>
+</header>
+</body>
+</html>

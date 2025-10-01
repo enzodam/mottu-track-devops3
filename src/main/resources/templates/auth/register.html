@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Cadastro • Mottu Track', ~{::content})}">
+<body>
+<div th:fragment="content" class="auth">
+    <div class="auth__container">
+        <div class="auth-card">
+            <h1>Cadastro</h1>
+
+            <form th:action="@{/register}" th:object="${usuario}" method="post">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input id="username" type="text" th:field="*{username}" autocomplete="username" required>
+                    <small class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="nome">Nome</label>
+                    <input id="nome" type="text" th:field="*{nome}" required>
+                    <small class="error" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input id="email" type="email" th:field="*{email}" autocomplete="email" required>
+                    <small class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input id="password" type="password" th:field="*{senha}" autocomplete="new-password" required>
+                    <small class="error" th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="perfil">Perfil</label>
+                    <select id="perfil" th:field="*{perfil}" required>
+                        <option value="USER">Usuário</option>
+                        <option value="ADMIN">Administrador</option>
+                    </select>
+                    <small class="error" th:if="${#fields.hasErrors('perfil')}" th:errors="*{perfil}"></small>
+                </div>
+
+                <button type="submit" class="btn">Registrar</button>
+
+                <p class="meta">Já tem conta? <a th:href="@{/login}">Voltar ao login</a></p>
+
+                <p class="meta success" th:if="${success}" th:text="${success}"></p>
+                <p class="meta error" th:if="${error}" th:text="${error}"></p>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

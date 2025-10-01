@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-br"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Admin • Mottu Track', ~{::content})}">
+<body>
+<div th:fragment="content" class="admin">
+
+    <!-- KPIs simples (não quebram se null) -->
+    <section class="kpi">
+        <div class="kpi__item"><div class="kpi__title">Filiais</div><div class="kpi__value" th:text="${filiaisCount} ?: 0">0</div></div>
+        <div class="kpi__item"><div class="kpi__title">Pátios</div><div class="kpi__value" th:text="${patiosCount} ?: 0">0</div></div>
+        <div class="kpi__item"><div class="kpi__title">Vagas</div><div class="kpi__value" th:text="${vagasCount} ?: 0">0</div></div>
+        <div class="kpi__item"><div class="kpi__title">Motos</div><div class="kpi__value" th:text="${motosCount} ?: 0">0</div></div>
+    </section>
+
+    <!-- ================= FILIAIS ================ -->
+    <section class="accordion is-open">
+        <div class="accordion__head" onclick="this.parentElement.classList.toggle('is-open')">
+            <span>Filiais</span><span>▾</span>
+        </div>
+        <div class="accordion__body">
+
+            <!-- (1) ADICIONAR / ATUALIZAR -->
+            <h3>Adicionar / Atualizar</h3>
+            <form class="form-row" th:action="@{/admin/filiais}" method="post" novalidate>
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" name="id" th:value="${filial?.id}">
+
+                <div class="col-8">
+                    <label>Nome</label>
+                    <input type="text" name="nome" th:value="${filial?.nome}" placeholder="Nome da filial" required>
+                </div>
+
+                <div class="col-4">
+                    <label>Estado (UF)</label>
+                    <input type="text" name="estado" maxlength="2"
+                           style="text-transform: uppercase;"
+                           th:value="${filial?.estado}" placeholder="UF" required>
+                </div>
+
+                <div class="col-12 right">
+                    <button type="submit" class="btn">Salvar</button>
+                </div>
+            </form>
+
+
+            <!-- (2) BUSCAR POR ID -->
+            <h3 class="mt-16">Buscar por ID</h3>
+            <form class="form-row" th:action="@{/admin/filiais/buscar}" method="get" novalidate>
+                <div class="col-8">
+                    <label>ID</label>
+                    <input type="number" name="id" min="1" placeholder="ex: 1" required>
+                </div>
+                <div class="col-4 right">
+                    <button type="submit" class="btn btn-outline">Buscar</button>
+                </div>
+            </form>
+
+            <!-- resultado da busca (opcional) -->
+            <div class="mt-12" th:if="${filialBusca != null}">
+                <table class="table">
+                    <thead><tr><th>ID</th><th>NOME</th><th class="right">AÇÕES</th></tr></thead>
+                    <tbody>
+                    <tr>
+                        <td th:text="${filialBusca.id}">1</td>
+                        <td th:text="${filialBusca.nome}">Nome</td>
+                        <td class="right">
+                            <a th:href="@{|/admin/filiais/buscar?id=${filialBusca.id}|}" class="btn btn-outline mini">Editar</a>
+                            <form th:action="@{|/admin/filiais/${filialBusca.id}/excluir|}" method="post" style="display:inline">
+                                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="btn btn-outline mini" onclick="return confirm('Excluir filial?')">Excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- (3) LISTA TODO MUNDO -->
+            <h3 class="mt-16">Todas as Filiais</h3>
+            <table class="table">
+                <thead><tr><th>ID</th><th>NOME</th><th class="right">AÇÕES</th></tr></thead>
+                <tbody>
+                <tr th:each="f : ${filiaisList}">
+                    <td th:text="${f.id}">1</td>
+                    <td th:text="${f.nome}">Nome</td>
+                    <td class="right">
+                        <a th:href="@{|/admin/filiais/buscar?id=${f.id}|}" class="btn btn-outline mini">Editar</a>
+                        <form th:action="@{|/admin/filiais/${f.id}/excluir|}" method="post" style="display:inline">
+                            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn btn-outline mini" onclick="return confirm('Excluir filial?')">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </section>
+
+    <!-- ================= PÁTIOS (campos seguros) ================ -->
+    <section class="accordion">
+        <div class="accordion__head" onclick="this.parentElement.classList.toggle('is-open')">
+            <span>Pátios</span><span>▾</span>
+        </div>
+        <div class="accordion__body">
+            <h3>Adicionar / Atualizar</h3>
+            <form class="form-row" th:action="@{/admin/patios}" method="post">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" name="id" th:value="${patio?.id}">
+
+                <div class="col-5">
+                    <label>Nome</label>
+                    <input type="text" name="nome" th:value="${patio?.nome}" required>
+                </div>
+
+                <div class="col-5">
+                    <label>Filial ID</label>
+                    <input type="number" name="filial.id" th:value="${patio?.filial?.id}" min="1" required>
+                </div>
+
+                <div class="col-2 right">
+                    <button class="btn" type="submit">Salvar</button>
+                </div>
+            </form>
+
+
+            <h3 class="mt-16">Buscar por ID</h3>
+            <form class="form-row" th:action="@{/admin/patios/buscar}" method="get">
+                <div class="col-8"><label>ID</label><input type="number" name="id" min="1" required></div>
+                <div class="col-4 right"><button class="btn btn-outline">Buscar</button></div>
+            </form>
+
+            <div class="mt-12" th:if="${patioBusca != null}">
+                <table class="table"><thead><tr><th>ID</th><th>NOME</th><th>FILIAL</th><th class="right">AÇÕES</th></tr></thead>
+                    <tbody><tr>
+                        <td th:text="${patioBusca.id}">1</td>
+                        <td th:text="${patioBusca.nome}">Pátio</td>
+                        <td th:text="${patioBusca.filial != null ? patioBusca.filial.id : '—'}">—</td>
+                        <td class="right">
+                            <a th:href="@{|/admin/patios/buscar?id=${patioBusca.id}|}" class="btn btn-outline mini">Editar</a>
+                            <form th:action="@{|/admin/patios/${patioBusca.id}/excluir|}" method="post" style="display:inline">
+                                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="btn btn-outline mini" onclick="return confirm('Excluir pátio?')">Excluir</button>
+                            </form>
+                        </td>
+                    </tr></tbody>
+                </table>
+            </div>
+
+            <h3 class="mt-16">Todos os Pátios</h3>
+            <table class="table"><thead><tr><th>ID</th><th>NOME</th><th>FILIAL</th><th class="right">AÇÕES</th></tr></thead>
+                <tbody>
+                <tr th:each="p : ${patiosList}">
+                    <td th:text="${p.id}">1</td>
+                    <td th:text="${p.nome}">Nome</td>
+                    <td th:text="${p.filial != null ? p.filial.id : '—'}">—</td>
+                    <td class="right">
+                        <a th:href="@{|/admin/patios/buscar?id=${p.id}|}" class="btn btn-outline mini">Editar</a>
+                        <form th:action="@{|/admin/patios/${p.id}/excluir|}" method="post" style="display:inline">
+                            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn btn-outline mini" onclick="return confirm('Excluir pátio?')">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ================= VAGAS (sem campo inexistente) ================ -->
+    <section class="accordion">
+        <div class="accordion__head" onclick="this.parentElement.classList.toggle('is-open')">
+            <span>Vagas</span><span>▾</span>
+        </div>
+        <div class="accordion__body">
+            <h3>Adicionar / Atualizar</h3>
+            <form class="form-row" th:action="@{/admin/vagas}" method="post">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" name="id" th:value="${vaga?.id}">
+
+                <div class="col-5">
+                    <label>Código</label>
+                    <input type="text" name="codigo" th:value="${vaga?.codigo}" required>
+                </div>
+
+                <div class="col-5">
+                    <label>Pátio ID</label>
+                    <input type="number" name="patio.id" th:value="${vaga?.patio?.id}" min="1" required>
+                </div>
+
+                <div class="col-2 center">
+                    <input type="checkbox" id="disp" name="disponivel" th:checked="${vaga?.disponivel}">
+                    <label for="disp">Disponível</label>
+                </div>
+
+                <div class="col-12 right">
+                    <button class="btn" type="submit">Salvar</button>
+                </div>
+            </form>
+
+
+            <h3 class="mt-16">Buscar por ID</h3>
+            <form class="form-row" th:action="@{/admin/vagas/buscar}" method="get">
+                <div class="col-8"><label>ID</label><input type="number" name="id" min="1" required></div>
+                <div class="col-4 right"><button class="btn btn-outline">Buscar</button></div>
+            </form>
+
+            <div class="mt-12" th:if="${vagaBusca != null}">
+                <table class="table"><thead><tr><th>ID</th><th>PÁTIO</th><th>DISP.</th><th class="right">AÇÕES</th></tr></thead>
+                    <tbody><tr>
+                        <td th:text="${vagaBusca.id}">1</td>
+                        <td th:text="${vagaBusca.patio != null ? vagaBusca.patio.id : '—'}">—</td>
+                        <td><span class="badge" th:text="${vagaBusca.disponivel} ? 'Sim' : 'Não'">Sim</span></td>
+                        <td class="right">
+                            <a th:href="@{|/admin/vagas/buscar?id=${vagaBusca.id}|}" class="btn btn-outline mini">Editar</a>
+                            <form th:action="@{|/admin/vagas/${vagaBusca.id}/excluir|}" method="post" style="display:inline">
+                                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="btn btn-outline mini" onclick="return confirm('Excluir vaga?')">Excluir</button>
+                            </form>
+                        </td>
+                    </tr></tbody>
+                </table>
+            </div>
+
+            <h3 class="mt-16">Todas as Vagas</h3>
+            <table class="table"><thead><tr><th>ID</th><th>PÁTIO</th><th>DISP.</th><th class="right">AÇÕES</th></tr></thead>
+                <tbody>
+                <tr th:each="v : ${vagasList}">
+                    <td th:text="${v.id}">1</td>
+                    <td th:text="${v.patio != null ? v.patio.id : '—'}">—</td>
+                    <td><span class="badge" th:text="${v.disponivel} ? 'Sim' : 'Não'">Sim</span></td>
+                    <td class="right">
+                        <a th:href="@{|/admin/vagas/buscar?id=${v.id}|}" class="btn btn-outline mini">Editar</a>
+                        <form th:action="@{|/admin/vagas/${v.id}/excluir|}" method="post" style="display:inline">
+                            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn btn-outline mini" onclick="return confirm('Excluir vaga?')">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ================= MOTOS (sem “modelo”) ================ -->
+    <section class="accordion">
+        <div class="accordion__head" onclick="this.parentElement.classList.toggle('is-open')">
+            <span>Motos</span><span>▾</span>
+        </div>
+        <div class="accordion__body">
+            <h3>Adicionar / Atualizar</h3>
+            <form class="form-row" th:action="@{/admin/motos}" method="post">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" name="id" th:value="${moto?.id}">
+
+                <div class="col-5">
+                    <label>Placa</label>
+                    <input type="text" name="placa" th:value="${moto?.placa}" required>
+                </div>
+
+                <div class="col-5">
+                    <label>Cor</label>
+                    <input type="text" name="cor" th:value="${moto?.cor}" required>
+                </div>
+
+                <div class="col-2">
+                    <label>Filial ID</label>
+                    <input type="number" name="filial.id" th:value="${moto?.filial?.id}" min="1" required>
+                </div>
+
+                <div class="col-12 right">
+                    <button class="btn" type="submit">Salvar</button>
+                </div>
+            </form>
+
+
+            <h3 class="mt-16">Buscar por ID</h3>
+            <form class="form-row" th:action="@{/admin/motos/buscar}" method="get">
+                <div class="col-8"><label>ID</label><input type="number" name="id" min="1" required></div>
+                <div class="col-4 right"><button class="btn btn-outline">Buscar</button></div>
+            </form>
+
+            <div class="mt-12" th:if="${motoBusca != null}">
+                <table class="table"><thead><tr><th>ID</th><th>PLACA</th><th>FILIAL</th><th class="right">AÇÕES</th></tr></thead>
+                    <tbody><tr>
+                        <td th:text="${motoBusca.id}">1</td>
+                        <td th:text="${motoBusca.placa}">ABC-1234</td>
+                        <td th:text="${motoBusca.filial != null ? motoBusca.filial.id : '—'}">—</td>
+                        <td class="right">
+                            <a th:href="@{|/admin/motos/buscar?id=${motoBusca.id}|}" class="btn btn-outline mini">Editar</a>
+                            <form th:action="@{|/admin/motos/${motoBusca.id}/excluir|}" method="post" style="display:inline">
+                                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="btn btn-outline mini" onclick="return confirm('Excluir moto?')">Excluir</button>
+                            </form>
+                        </td>
+                    </tr></tbody>
+                </table>
+            </div>
+
+            <h3 class="mt-16">Todas as Motos</h3>
+            <table class="table"><thead><tr><th>ID</th><th>PLACA</th><th>FILIAL</th><th class="right">AÇÕES</th></tr></thead>
+                <tbody>
+                <tr th:each="m : ${motosList}">
+                    <td th:text="${m.id}">1</td>
+                    <td th:text="${m.placa}">ABC-1234</td>
+                    <td th:text="${m.filial != null ? m.filial.id : '—'}">—</td>
+                    <td class="right">
+                        <a th:href="@{|/admin/motos/buscar?id=${m.id}|}" class="btn btn-outline mini">Editar</a>
+                        <form th:action="@{|/admin/motos/${m.id}/excluir|}" method="post" style="display:inline">
+                            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn btn-outline mini" onclick="return confirm('Excluir moto?')">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ================= USUÁRIOS ================ -->
+    <section class="accordion">
+        <div class="accordion__head" onclick="this.parentElement.classList.toggle('is-open')">
+            <span>Usuários</span><span>▾</span>
+        </div>
+        <div class="accordion__body">
+            <h3>Adicionar / Atualizar</h3>
+            <form class="form-row" th:action="@{/admin/usuarios}" method="post">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" name="id" th:value="${usuario?.id}">
+
+                <div class="col-4">
+                    <label>Nome</label>
+                    <input type="text" name="nome" th:value="${usuario?.nome}" required>
+                </div>
+
+                <div class="col-4">
+                    <label>Email</label>
+                    <input type="email" name="email" th:value="${usuario?.email}" required>
+                </div>
+
+                <div class="col-3">
+                    <label>Senha</label>
+                    <input type="password" name="senha" placeholder="••••••">
+                </div>
+
+                <div class="col-1 center">
+                    <input type="checkbox" id="ativo" name="ativo" th:checked="${usuario?.ativo}">
+                    <label for="ativo">Ativo</label>
+                </div>
+
+                <div class="col-3">
+                    <label>Perfil</label>
+                    <select name="perfil" required>
+                        <option value="USER" th:selected="${usuario?.perfil == 'USER'}">USER</option>
+                        <option value="ADMIN" th:selected="${usuario?.perfil == 'ADMIN'}">ADMIN</option>
+                    </select>
+                </div>
+
+                <div class="col-12 right mt-8">
+                    <button class="btn" type="submit">Salvar</button>
+                </div>
+            </form>
+
+
+            <h3 class="mt-16">Buscar por ID</h3>
+            <form class="form-row" th:action="@{/admin/usuarios/buscar}" method="get">
+                <div class="col-8"><label>ID</label><input type="number" name="id" min="1" required></div>
+                <div class="col-4 right"><button class="btn btn-outline">Buscar</button></div>
+            </form>
+
+            <div class="mt-12" th:if="${usuarioBusca != null}">
+                <table class="table"><thead><tr><th>ID</th><th>NOME</th><th>EMAIL</th><th>ATIVO</th><th class="right">AÇÕES</th></tr></thead>
+                    <tbody><tr>
+                        <td th:text="${usuarioBusca.id}">1</td>
+                        <td th:text="${usuarioBusca.nome}">Fulano</td>
+                        <td th:text="${usuarioBusca.email}">email@x.com</td>
+                        <td><span class="badge" th:text="${usuarioBusca.ativo} ? 'Sim' : 'Não'">Sim</span></td>
+                        <td class="right">
+                            <a th:href="@{|/admin/usuarios/buscar?id=${usuarioBusca.id}|}" class="btn btn-outline mini">Editar</a>
+                            <form th:action="@{|/admin/usuarios/${usuarioBusca.id}/excluir|}" method="post" style="display:inline">
+                                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="btn btn-outline mini" onclick="return confirm('Excluir usuário?')">Excluir</button>
+                            </form>
+                        </td>
+                    </tr></tbody>
+                </table>
+            </div>
+
+            <h3 class="mt-16">Todos os Usuários</h3>
+            <table class="table"><thead><tr><th>ID</th><th>NOME</th><th>EMAIL</th><th>ATIVO</th><th class="right">AÇÕES</th></tr></thead>
+                <tbody>
+                <tr th:each="u : ${usuariosList}">
+                    <td th:text="${u.id}">1</td>
+                    <td th:text="${u.nome}">Nome</td>
+                    <td th:text="${u.email}">email@x.com</td>
+                    <td><span class="badge" th:text="${u.ativo} ? 'Sim' : 'Não'">Sim</span></td>
+                    <td class="right">
+                        <a th:href="@{|/admin/usuarios/buscar?id=${u.id}|}" class="btn btn-outline mini">Editar</a>
+                        <form th:action="@{|/admin/usuarios/${u.id}/excluir|}" method="post" style="display:inline">
+                            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn btn-outline mini" onclick="return confirm('Excluir usuário?')">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ====== AQUI EMBAIXO, DEPOIS DOS ACCORDIONS: BOTÃO SAIR ====== -->
+    <div style="margin-top:18px; display:flex; justify-content:flex-end;">
+        <form th:action="@{/logout}" method="post" style="margin:0">
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit" class="btn btn-outline">Sair</button>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

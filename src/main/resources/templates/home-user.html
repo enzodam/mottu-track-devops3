@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-br"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Home • Mottu Track', ~{::content})}">
+<body>
+<div th:fragment="content" class="home">
+    <div class="auth__container">
+        <div class="auth-card">
+            <h1>Bem-vindo!</h1>
+            <p>Alugue sua moto de forma rápida.</p>
+
+            <div class="actions">
+                <a th:href="@{/motos/alugar}" class="btn btn-primary">Alugar Moto</a>
+
+                <form th:action="@{/logout}" method="post" style="display:inline">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit" class="btn btn-outline">Sair</button>
+                </form>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+</body>
+</html>

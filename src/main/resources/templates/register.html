@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Cadastro • Mottu Track', ~{::content})}">
+<body>
+<div th:fragment="content" class="auth">
+  <div class="auth__container">
+    <div class="auth-card">
+      <h1>Cadastro</h1>
+
+      <form th:action="@{/register}" method="post">
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input id="username" name="username" type="text" autocomplete="username" required>
+        </div>
+
+        <div class="form-group">
+          <label for="nome">Nome</label>
+          <input id="nome" name="nome" type="text" required>
+        </div>
+
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input id="email" name="email" type="email" autocomplete="email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <input id="password" name="password" type="password" autocomplete="new-password" required>
+        </div>
+
+        <div class="form-group">
+          <label for="perfil">Perfil</label>
+          <select id="perfil" name="perfil" required>
+            <option value="USER">Usuário</option>
+            <option value="ADMIN">Admin</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn">Registrar</button>
+      </form>
+
+      <p class="meta">Já tem conta? <a th:href="@{/login}">Voltar ao login</a></p>
+    </div>
+  </div>
+</div>
+</body>
+</html>
