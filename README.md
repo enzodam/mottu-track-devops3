@@ -14,16 +14,48 @@ CRUD completo em **Moto** com **PostgreSQL** na Azure e deploy **PaaS** no **Azu
 - Acelera locação/devolução, reduz erros e retrabalho.
 - Base única para relatórios e tomada de decisão.
 
-## 3) Arquitetura
+## 3) 🏗️ Arquitetura do Projeto
+**🟢 Arquitetura em Execução (Azure – PaaS)**
 
-flowchart LR
-  User["Usuário Web"] -->|HTTPS| App["Azure App Service<br/>(Java 17)"];
-  App -->|JDBC + Flyway| PG[(Azure PostgreSQL Flexible Server)];
-  subgraph Azure
-    App
-    PG
-  end
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                               MICROSOFT AZURE                                │
+│                                                                              │
+│  ┌──────────────────────────────┐        JDBC + SSL (5432)                   │
+│  │  Azure App Service (Linux)   │──────────────────────────────────┐         │
+│  │  Plano: B1 • Runtime: Java17 │                                  │         │
+│  │  Site: app-…azurewebsites.net│                                  ▼         │
+│  │  • Spring Boot API           │    ┌─────────────────────────────────────┐  │
+│  │  • Deploy: OneDeploy/Kudu    │    │ Azure Database for PostgreSQL       │  │
+│  │  • Flyway em startup         │    │ Flexible Server (v16)               │  │
+│  └──────────────▲───────────────┘    │ DB: db_challenge3_devops            │  │
+│                 │                    │ User: pgadmin558438 (SSL required)  │  │
+│          HTTPS (443)                 └─────────────────────────────────────┘  │
+│     (Tomcat escuta na porta 80)                                                │
+│                                                                              │
+│  Firewall do PostgreSQL liberando:                                            │
+│  • IPs de saída do App Service                                                │
+│  • Seu IP local (para pgAdmin/psql – temporário)                              │
+└──────────────────┬────────────────────────────────────────────────────────────┘
+                   │
+                   ▼
+             ┌─────────────┐
+             │   Usuário   │
+             │  Browser    │
+             └─────────────┘
 
+
+
+* App roda em Azure App Service (Linux) com Java 17; o site público é *.azurewebsites.net.
+
+* O Tomcat do App Service expõe porta 80 internamente, e o acesso do usuário acontece via HTTPS (443).
+
+* A aplicação se conecta ao Azure PostgreSQL Flexible Server por JDBC com SSL obrigatório.
+
+* Flyway executa as migrações na subida do app (cria tabelas e dados iniciais).
+
+* O deploy do .jar foi feito com az webapp deploy (OneDeploy/Kudu).
+
+* O PostgreSQL tem regras de firewall para os IPs de saída do App Service e, quando necessário, o seu IP para acessar via pgAdmin/psql.
 
 ## 4) Pré-requisitos
 * Java 17 + Maven 3.9+
