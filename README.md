@@ -17,18 +17,23 @@ CRUD completo em **Moto** com **PostgreSQL** na Azure e deploy **PaaS** no **Azu
 ## 3) 🏗️ Arquitetura do Projeto
 **🟢 Arquitetura em Execução (Azure – PaaS)**
 
-+------------------------------ MICROSOFT AZURE (PaaS) ------------------------------+
-|                                                                                    |
-|  [ Azure App Service  (Linux • Java 17) ]                                          |
-|  • Site: https://app-…azurewebsites.net                                            |
-|  • Deploy: OneDeploy / Kudu (az webapp deploy)                                     |
-|  • Tomcat escuta: 80 (interno)   ←→   Usuário via HTTPS 443                        |
-|                                   │ JDBC + SSL (5432)                              |
-|                                   ▼                                                |
-|  [ Azure Database for PostgreSQL – Flexible Server (v16) ]                         |
-|  • DB: db_challenge3_devops  • User: pgadmin558438  • SSL required                 |
-|  • Firewall: IPs de saída do App Service + (opcional) seu IP p/ pgAdmin/psql       |
-+------------------------------------------------------------------------------------+
++--------------------------- AZURE (PaaS) ----------------------------+
+|                                                                     |
+|  [ Azure App Service – Linux – Java 17 ]                            |
+|    • Site: app-…azurewebsites.net                                   |
+|    • Deploy: OneDeploy / Kudu (az webapp deploy)                    |
+|    • Tomcat interno: porta 80                                       |
+|                                 │                                   |
+|  Usuário via HTTPS 443  ────────┤                                   |
+|                                 │   JDBC + SSL (5432)               |
+|                                 ▼                                   |
+|                  [ Azure Database for PostgreSQL ]                  |
+|                    • Flexible Server v16                            |
+|                    • DB: db_challenge3_devops                       |
+|                    • User: pgadmin558438  (SSL required)            |
+|                    • Firewall: IPs de saída do App Service          |
+|                      (+ seu IP p/ pgAdmin/psql quando necessário)   |
++---------------------------------------------------------------------+
 
 
 
