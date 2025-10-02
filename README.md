@@ -228,3 +228,16 @@ CREATE TABLE IF NOT EXISTS locacao (
 ** App Settings: WEBSITES_PORT=8080 e JAVA_TOOL_OPTIONS=-Dserver.port=8080
 
 ** SPRING_DATASOURCE_* corretos (sem null).
+
+## 👨‍💻 Desenvolvedores
+
+| Nome                          | RM      | GitHub |
+|-------------------------------|---------|--------|
+| Enzo Dias Alfaia Mendes       | 558438  | [@enzodam](https://github.com/enzodam) |
+| Matheus Henrique Germano Reis | 555861  | [@MatheusReis48](https://github.com/MatheusReis48) |
+| Luan Dantas dos Santos        | 559004  | [@lds2125](https://github.com/lds2125) |
+
+
+## Video:
+
+* [https://www.youtube.com/watch?v=V-qFbxLC_dg]
