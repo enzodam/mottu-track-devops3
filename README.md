@@ -17,23 +17,25 @@ CRUD completo em **Moto** com **PostgreSQL** na Azure e deploy **PaaS** no **Azu
 ## 3) 🏗️ Arquitetura do Projeto
 **🟢 Arquitetura em Execução (Azure – PaaS)**
 
-+--------------------------- AZURE (PaaS) ----------------------------+
-|                                                                     |
-|  [ Azure App Service – Linux – Java 17 ]                            |
-|    • Site: app-…azurewebsites.net                                   |
-|    • Deploy: OneDeploy / Kudu (az webapp deploy)                    |
-|    • Tomcat interno: porta 80                                       |
-|                                 │                                   |
-|  Usuário via HTTPS 443  ────────┤                                   |
-|                                 │   JDBC + SSL (5432)               |
-|                                 ▼                                   |
-|                  [ Azure Database for PostgreSQL ]                  |
-|                    • Flexible Server v16                            |
-|                    • DB: db_challenge3_devops                       |
-|                    • User: pgadmin558438  (SSL required)            |
-|                    • Firewall: IPs de saída do App Service          |
-|                      (+ seu IP p/ pgAdmin/psql quando necessário)   |
-+---------------------------------------------------------------------+
+
+graph TB
+    subgraph "DOCKER HOST"
+        subgraph "DOCKER NETWORK"
+            APP[Container App<br/>Spring Boot<br/>:8080]
+            DB[Container Database<br/>PostgreSQL<br/>:5432]
+        end
+        APP --> DB
+    end
+    
+    USER[Usuário<br/>:8080] --> APP
+    
+    classDef container fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef user fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef host fill:#e8f5e8,stroke:#1b5e20,stroke-width:3px
+    
+    class APP,DB container
+    class USER user
+    class DOCKER_HOST host
 
 
 
