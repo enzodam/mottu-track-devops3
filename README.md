@@ -17,26 +17,27 @@ CRUD completo em **Moto** com **PostgreSQL** na Azure e deploy **PaaS** no **Azu
 ## 3) 🏗️ Arquitetura do Projeto
 **🟢 Arquitetura em Execução (Azure – PaaS)**
 
-
-graph TB
-    subgraph "DOCKER HOST"
-        subgraph "DOCKER NETWORK"
-            APP[Container App<br/>Spring Boot<br/>:8080]
-            DB[Container Database<br/>PostgreSQL<br/>:5432]
-        end
-        APP --> DB
-    end
-    
-    USER[Usuário<br/>:8080] --> APP
-    
-    classDef container fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef user fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef host fill:#e8f5e8,stroke:#1b5e20,stroke-width:3px
-    
-    class APP,DB container
-    class USER user
-    class DOCKER_HOST host
-
+```text
+┌─────────────────────────────────────────────────┐
+│                 DOCKER HOST                     │
+│                                                 │
+│  ┌─────────────────┐    ┌─────────────────┐    │
+│  │   CONTAINER     │    │   CONTAINER     │    │
+│  │   APP           │◄───│   DATABASE      │    │
+│  │   Spring Boot   │    │   PostgreSQL    │    │
+│  │   :8080         │    │   :5432         │    │
+│  └─────────────────┘    └─────────────────┘    │
+│                 ┌─────────────┐                 │
+│                 │  DOCKER NET │                 │
+│                 └─────────────┘                 │
+└─────────────────────────┬───────────────────────┘
+                          │
+                          ▼
+                    ┌─────────────┐
+                    │   USUÁRIO   │
+                    │  :8080      │
+                    └─────────────┘
+```
 
 
 * App roda em Azure App Service (Linux) com Java 17; o site público é *.azurewebsites.net.
